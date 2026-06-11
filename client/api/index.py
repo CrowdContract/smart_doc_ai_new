@@ -48,6 +48,8 @@ def init_db():
 
 init_db()
 
+from mangum import Mangum
+
 # ── Helpers ──────────────────────────────────────────────
 STOPWORDS = {
     "the","and","for","are","was","were","with","that","this","have","from",
@@ -200,3 +202,6 @@ def get_feedback():
     rows = conn.execute("SELECT * FROM feedback ORDER BY id DESC").fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+# Vercel serverless handler
+handler = Mangum(app, lifespan="off")
