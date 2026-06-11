@@ -1,19 +1,15 @@
 import axios from "axios";
 
 /**
- * In local dev:  VITE_API_URL=http://localhost:8000  → proxy via Vite
- * In Vercel prod: requests go to /api/... which Vercel rewrites to Render
+ * Always use /api — works everywhere:
+ *  Local dev  → Vite proxies /api → http://localhost:8000
+ *  Vercel prod → /api/* hits the Python serverless function directly
  */
-const BASE = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL
-  : "/api";
-
 const api = axios.create({
-  baseURL: BASE,
+  baseURL: "/api",
   timeout: 90_000,
 });
 
-// ── Resume ──────────────────────────────────────────────
 export const uploadResume = (file, onProgress) => {
   const form = new FormData();
   form.append("file", file);
@@ -24,16 +20,10 @@ export const uploadResume = (file, onProgress) => {
   });
 };
 
-export const fetchInsights = (params = {}) => api.get("/insights", { params });
-export const deleteResume  = (id)           => api.delete(`/resumes/${id}`);
-
-// ── Analytics ────────────────────────────────────────────
-export const fetchAnalyticsSummary = () => api.get("/analytics/summary");
-export const recordEvent = (event_type, detail = "") =>
-  api.post("/analytics/event", null, { params: { event_type, detail } });
-
-// ── Feedback ─────────────────────────────────────────────
-export const submitFeedback = (payload) => api.post("/feedback", payload);
-
-// ── Health ───────────────────────────────────────────────
-export const checkHealth = () => api.get("/health");
+export const fetchInsights        = (params = {}) => api.get("/insights", { params });
+export const deleteResume         = (id)           => api.delete(`/resumes/${id}`);
+export const fetchAnalyticsSummary = ()            => api.get("/analytics/summary");
+export const recordEvent          = (type, detail = "") =>
+  api.post("/analytics/event", null, { params: { event_type: type, detail } });
+export const submitFeedback       = (payload)      => api.post("/feedback", payload);
+export const checkHealth          = ()             => api.get("/health");
